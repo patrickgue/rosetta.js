@@ -16,7 +16,6 @@
 	"return",
 	"union",
 	"const",
-	"float",
 	"short",
 	"unsigned",
 	"continue",
@@ -36,7 +35,8 @@
 	"int",
 	"double",
 	"void",
-	"char"
+	"char",
+	"float"
     ];
 
     const control = [
@@ -46,12 +46,7 @@
 	")",
 	";",
 	"?",
-	":",
-	"=",
-	"<",
-	">",
-	"<=",
-	">="
+	":"
     ];
 
     const operator = [
@@ -65,6 +60,11 @@
 	"&",
 	"||",
 	"&&",
+	"=",
+	"<",
+	">",
+	"<=",
+	">="
     ];
 
     const numeric = /[0-9]+/g;
@@ -98,6 +98,11 @@
 	function createECMASrc (sCSrc) {
 	console.log(sCSrc);
 	let tokens = [];
+	let program = {
+	    headers : [],
+	    variables : [],
+	    control : []
+	};
 	let stringParts = sCSrc
 	    .replace(/\(/g," (")
 	    .replace(/\)/g," )")
@@ -152,8 +157,29 @@
 	console.log(JSON.stringify(tokens,null," "));
 	
 	
+	for(let i = 0; i < tokens.length; i++) {
+	    console.log(i, tokens[i]);
+	    if (tokens[i].type == "pre") {
+		if(tokens[i].token == "#include") {
+		    program.headers.push({
+			"type" : tokens[i].token,
+			"value" : tokens[++i].token
+		    });
+		}
+		else if(tokens[i].token == "#define") {
+		    program.variables.push({
+			"name" : tokens[++i].token,
+			"value" : tokens[++i].token
+		    });
+		}
+	    }
+	}
+
+	console.log(JSON.stringify(program,null," "));
+
+	
 		/* This is just an empty example... Enjoy in creating your C compiler! */
-		return "alert(\"Here you have the C code to be compiled to ECMAScript:\\n\\n\" + " + JSON.stringify(sCSrc) + ");";
+	return "";//"alert(\"Here you have the C code to be compiled to ECMAScript:\\n\\n\" + " + JSON.stringify(sCSrc) + ");";
 	}
 
 	rosetta.appendCompiler([ "text/x-csrc", "text/x-c" ], createECMASrc);
